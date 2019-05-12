@@ -2,8 +2,8 @@
 
 ''' A basic GUi to use ImageViewer class to show its functionalities and use cases. '''
 
-from PyQt4 import QtCore, QtGui, uic
-
+from PyQt5 import QtCore, QtGui, uic
+from PyQt5.QtWidgets import QApplication, QDialog, QMainWindow,QStyleFactory,QFileDialog,QMessageBox,QListWidgetItem
 from actions import ImageViewer
 import sys, os
 
@@ -21,9 +21,9 @@ def getImages(folder):
                 image_list.append(image_obj)
     return image_list
 
-class Iwindow(QtGui.QMainWindow, gui):
+class Iwindow(QMainWindow, gui):
     def __init__(self, parent=None):
-        QtGui.QMainWindow.__init__(self, parent)
+        QMainWindow.__init__(self, parent)
         self.setupUi(self)
 
         self.cntr, self.numImages = -1, -1  # self.cntr have the info of which image is selected/displayed
@@ -50,16 +50,16 @@ class Iwindow(QtGui.QMainWindow, gui):
     def selectDir(self):
         ''' Select a directory, make list of images in it and display the first image in the list. '''
         # open 'select folder' dialog box
-        self.folder = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory"))
+        self.folder = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         if not self.folder:
-            QtGui.QMessageBox.warning(self, 'No Folder Selected', 'Please select a valid Folder')
+            QMessageBox.warning(self, 'No Folder Selected', 'Please select a valid Folder')
             return
         
         self.logs = getImages(self.folder)
         self.numImages = len(self.logs)
 
         # make qitems of the image names
-        self.items = [QtGui.QListWidgetItem(log['name']) for log in self.logs]
+        self.items = [QListWidgetItem(log['name']) for log in self.logs]
         for item in self.items:
             self.qlist_images.addItem(item)
 
@@ -67,7 +67,7 @@ class Iwindow(QtGui.QMainWindow, gui):
         self.cntr = 0
         self.image_viewer.enablePan(True)
         self.image_viewer.loadImage(self.logs[self.cntr]['path'])
-        self.qlist_images.setItemSelected(self.items[self.cntr], True)
+        self.qlist_images.setCurrentItem(self.items[self.cntr] )
 
         # enable the next image button on the gui if multiple images are loaded
         if self.numImages > 1:
@@ -81,17 +81,17 @@ class Iwindow(QtGui.QMainWindow, gui):
         if self.cntr < self.numImages -1:
             self.cntr += 1
             self.image_viewer.loadImage(self.logs[self.cntr]['path'])
-            self.qlist_images.setItemSelected(self.items[self.cntr], True)
+            self.qlist_images.setCurrentItem(self.items[self.cntr])
         else:
-            QtGui.QMessageBox.warning(self, 'Sorry', 'No more Images!')
+            QMessageBox.warning(self, 'Sorry', 'No more Images!')
 
     def prevImg(self):
         if self.cntr > 0:
             self.cntr -= 1
             self.image_viewer.loadImage(self.logs[self.cntr]['path'])
-            self.qlist_images.setItemSelected(self.items[self.cntr], True)
+            self.qlist_images.setCurrentItem(self.items[self.cntr])
         else:
-            QtGui.QMessageBox.warning(self, 'Sorry', 'No previous Image!')
+            QMessageBox.warning(self, 'Sorry', 'No previous Image!')
 
     def item_click(self, item):
         self.cntr = self.items.index(item)
@@ -113,9 +113,9 @@ class Iwindow(QtGui.QMainWindow, gui):
             self.image_viewer.enablePan(True)
 
 def main():
-    app = QtGui.QApplication(sys.argv)
-    app.setStyle(QtGui.QStyleFactory.create("Cleanlooks"))
-    app.setPalette(QtGui.QApplication.style().standardPalette())
+    app = QApplication(sys.argv)
+    app.setStyle(QStyleFactory.create("Cleanlooks"))
+    app.setPalette(QApplication.style().standardPalette())
     parentWindow = Iwindow(None)
     sys.exit(app.exec_())
 
